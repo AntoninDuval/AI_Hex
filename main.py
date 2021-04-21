@@ -2,7 +2,7 @@ import hex
 
 
 def main():
-    hex.Hexagone()
+    hex.Hexagone(ai_difficulty='MCTS', size=3)
 
 
 if __name__ == '__main__':

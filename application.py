@@ -11,7 +11,7 @@ NB_ROW = 11
 
 
 class GUI(tk.Tk):
-    def __init__(self, hex_sim, is_ai=False):
+    def __init__(self, hex_sim, size, is_ai=False):
         self.hex_sim = hex_sim
         tk.Tk.__init__(self)
         self.title("Hex")
@@ -19,14 +19,15 @@ class GUI(tk.Tk):
         self.canvas.pack(padx=5, pady=5)
         self.restart = tk.Button(self, text='Restart', command=self.hex_sim.reset)
         self.restart.pack(side=tk.BOTTOM, pady=5)
-        self.create_hexagones()
         self.canvas.bind("<Button-1>", self.hex_sim.step)
         self.is_ai = is_ai
+        self.size_grid = size
+        self.create_hexagones()
 
     def create_hexagones(self):
-        self.center_array = np.ndarray((NB_COL, NB_ROW, 2))
-        for j in range(NB_COL):
-            for i in range(NB_ROW):
+        self.center_array = np.ndarray((self.size_grid, self.size_grid, 2))
+        for j in range(self.size_grid):
+            for i in range(self.size_grid):
                 self.canvas.create_polygon(5 + DIM_HEX / 2 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX / 4 + (j * 0.75 * DIM_HEX),
                                            5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
                                            5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
@@ -46,7 +47,7 @@ class GUI(tk.Tk):
                                             5 + (i + 1) * DIM_HEX, DIM_HEX / 2,
                                             fill='red',
                                             width=2)
-                if j == NB_ROW-1:
+                if j == self.size_grid-1:
                     self.canvas.create_line(5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
                                             5 + DIM_HEX * (i + 0.5) + (j * DIM_HEX / 2), 1.25 * DIM_HEX + (j * 0.75 * DIM_HEX),
                                             fill='red',
@@ -67,7 +68,7 @@ class GUI(tk.Tk):
                                            5 + DIM_HEX * (i + 0.5) + (j * DIM_HEX / 2), 1.25 * DIM_HEX + (j * 0.75 * DIM_HEX),
                                             fill='blue',
                                             width=2)
-                if i == NB_COL-1:
+                if i == self.size_grid-1:
 
                     self.canvas.create_line(5 + DIM_HEX / 2 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX / 4 + (j * 0.75 * DIM_HEX),
                                             5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
@@ -88,8 +89,8 @@ class GUI(tk.Tk):
 
         min_dist = np.linalg.norm(self.center_array[0, 0] - [pos_x, pos_y])
         coord = (0, 0)
-        for j in range(NB_COL):
-            for i in range(NB_ROW):
+        for j in range(self.size_grid):
+            for i in range(self.size_grid):
                 dist = np.linalg.norm(self.center_array[i, j]-[pos_x, pos_y])
                 if dist < min_dist:
                     min_dist = dist

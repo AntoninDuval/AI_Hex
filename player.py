@@ -2,7 +2,8 @@ from abc import ABC
 import numpy as np
 import random
 
-from mcts import MCTS, Node
+from mcts import MCTS
+from hex_board import HexBoard
 
 class Player(ABC):
     def __init__(self, type, number):
@@ -13,6 +14,12 @@ class Player(ABC):
     def move(self, grille):
         pass
 
+    def __eq__(self, other):
+        try:
+            return self.number == other.number
+        except AttributeError:
+            return False
+
 class Human(Player):
     def __init__(self, number):
         super().__init__('human', number)
@@ -22,18 +29,25 @@ class Random_AI(Player):
     def __init__(self, number):
         super().__init__('ai', number)
 
-    def move(self, grille):
-        required = np.where(grille == 0)
-        choice = random.randint(0, len(required[0]))
+    def move(self, board: HexBoard):
+        required = np.where(board.grille == 0)
+        choice = random.randrange(0, len(required[0]))
         coord = (required[0][choice], required[1][choice])
-        return coord
+        board = board.make_move(coord)
+
+        return board
 
 
-class Strong_AI(Player):
+class MCTS_Player(Player):
     def __init__(self, number):
         super().__init__('ai', number)
+        self.tree = MCTS()
 
-    def move(self, grille):
-        required = np.where(grille == 0)
+    def move(self, board):
+        for _ in range(50):
+            print(_)
+            self.tree.do_rollout(board)
+        board = self.tree.choose(board)
+        return board
 
 
