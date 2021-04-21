@@ -1,13 +1,8 @@
-import tkinter as tk
-from application import Application
-from hex import Hexagone
+import hex
 
 
 def main():
-    hex_sim = Hexagone()
-    app = Application(hex_sim)
-    app.mainloop()
-
+    hex.Hexagone()
 
 
 if __name__ == '__main__':

@@ -1,49 +1,133 @@
 import tkinter as tk
 import numpy as np
+from utils import *
 
-WIDTH, HEIGHT = 775, 425
-DIM_HEX = 47
+WIDTH, HEIGHT = 420, 225
+DIM_HEX = 25
+w = math.sqrt(3) * DIM_HEX
+
+NB_COL = 11
+NB_ROW = 11
 
 
-class Application(tk.Tk):
-    def __init__(self, hex_sim):
+class GUI(tk.Tk):
+    def __init__(self, hex_sim, is_ai=False):
+        self.hex_sim = hex_sim
         tk.Tk.__init__(self)
         self.title("Hex")
         self.canvas = tk.Canvas(self, width=WIDTH, height=HEIGHT, bg="IVORY")
         self.canvas.pack(padx=5, pady=5)
+        self.restart = tk.Button(self, text='Restart', command=self.hex_sim.reset)
+        self.restart.pack(side=tk.BOTTOM, pady=5)
         self.create_hexagones()
-
-        self.canvas.bind("<Button-1>", self.get_hexagone)
+        self.canvas.bind("<Button-1>", self.hex_sim.step)
+        self.is_ai = is_ai
 
     def create_hexagones(self):
-        for j in range(11):
-            for i in range(11):
+        self.center_array = np.ndarray((NB_COL, NB_ROW, 2))
+        for j in range(NB_COL):
+            for i in range(NB_ROW):
                 self.canvas.create_polygon(5 + DIM_HEX / 2 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX / 4 + (j * 0.75 * DIM_HEX),
-                                          5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
-                                          5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
-                                          5 + DIM_HEX * (i + 0.5) + (j * DIM_HEX / 2),
-                                          1.25 * DIM_HEX + (j * 0.75 * DIM_HEX),
-                                          5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
-                                          5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
-                                          fill='white',
-                                          outline='black',
-                                          activefill='grey')
+                                           5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
+                                           5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
+                                           5 + DIM_HEX * (i + 0.5) + (j * DIM_HEX / 2), 1.25 * DIM_HEX + (j * 0.75 * DIM_HEX),
+                                           5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
+                                           5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
+                                           fill='white',
+                                           outline='black',
+                                           activefill='grey')
+                if j == 0:
+                    self.canvas.create_line(5 + DIM_HEX / 2 + (i * DIM_HEX), DIM_HEX / 4,
+                                            5 + (i * DIM_HEX), DIM_HEX / 2,
+                                            fill='red',
+                                            width=2)
+
+                    self.canvas.create_line(5 + DIM_HEX / 2 + (i * DIM_HEX), DIM_HEX / 4,
+                                            5 + (i + 1) * DIM_HEX, DIM_HEX / 2,
+                                            fill='red',
+                                            width=2)
+                if j == NB_ROW-1:
+                    self.canvas.create_line(5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
+                                            5 + DIM_HEX * (i + 0.5) + (j * DIM_HEX / 2), 1.25 * DIM_HEX + (j * 0.75 * DIM_HEX),
+                                            fill='red',
+                                            width=2)
+
+                    self.canvas.create_line(5 + DIM_HEX * (i + 0.5) + (j * DIM_HEX / 2), 1.25 * DIM_HEX + (j * 0.75 * DIM_HEX),
+                                           5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
+                                            fill='red',
+                                            width=2)
+
+                if i == 0:
+                    self.canvas.create_line(5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
+                                           5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
+                                            fill='blue',
+                                            width=2)
+
+                    self.canvas.create_line(5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
+                                           5 + DIM_HEX * (i + 0.5) + (j * DIM_HEX / 2), 1.25 * DIM_HEX + (j * 0.75 * DIM_HEX),
+                                            fill='blue',
+                                            width=2)
+                if i == NB_COL-1:
+
+                    self.canvas.create_line(5 + DIM_HEX / 2 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX / 4 + (j * 0.75 * DIM_HEX),
+                                            5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
+                                            fill='blue',
+                                            width=2)
+
+                    self.canvas.create_line(5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
+                                           5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
+                                            fill='blue',
+                                            width=2)
+
+                self.center_array[i, j] = np.array(
+                    [DIM_HEX * (i + 0.5) + (j * DIM_HEX / 2), 0.5 * DIM_HEX + (j * 0.75 * DIM_HEX)])
 
     def get_hexagone(self, event):
+        pos_x = event.x - 5
+        pos_y = event.y - DIM_HEX/4
 
+        min_dist = np.linalg.norm(self.center_array[0, 0] - [pos_x, pos_y])
+        coord = (0, 0)
+        for j in range(NB_COL):
+            for i in range(NB_ROW):
+                dist = np.linalg.norm(self.center_array[i, j]-[pos_x, pos_y])
+                if dist < min_dist:
+                    min_dist = dist
+                    coord = (i, j)
 
-        pos_x = event.x-5
+        return coord
 
-        pos_y = event.y - 12.25
+    def redraw_hex(self, coord, player):
 
-        print('x :', pos_x, 'y :', pos_y)
+        i, j = coord[0], coord[1]
 
-        print('x%47 :', pos_x%DIM_HEX , 'y%47:', pos_y%DIM_HEX)
-
-        if (47-pos_x%DIM_HEX) < DIM_HEX/2 and 35.75 < pos_y%DIM_HEX < 47:
-            print('POS Y = ', pos_y//DIM_HEX+1)
+        if player.number == 1:
+            COLOR = 'red'
         else:
-            print('POS Y = ', pos_y//DIM_HEX)
+            COLOR = 'blue'
+
+        self.canvas.create_polygon(5 + DIM_HEX / 2 + (i * DIM_HEX) + (j * DIM_HEX / 2),
+                                   DIM_HEX / 4 + (j * 0.75 * DIM_HEX),
+                                   5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
+                                   5 + (i * DIM_HEX) + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
+                                   5 + DIM_HEX * (i + 0.5) + (j * DIM_HEX / 2), 1.25 * DIM_HEX + (j * 0.75 * DIM_HEX),
+                                   5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2), DIM_HEX + (j * 0.75 * DIM_HEX),
+                                   5 + (i + 1) * DIM_HEX + (j * DIM_HEX / 2),
+                                   DIM_HEX / 2 + (j * 0.75 * DIM_HEX),
+                                   fill=COLOR,
+                                   outline='black')
+
+    def restart_app(self):
+        self.canvas.delete(tk.ALL)
+        self.create_hexagones()
+
+
+
+
+
+
+
+
 
 
 
