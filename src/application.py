@@ -1,6 +1,6 @@
 import tkinter as tk
 import numpy as np
-from utils import *
+from src.utils import *
 
 WIDTH, HEIGHT = 420, 225
 DIM_HEX = 25

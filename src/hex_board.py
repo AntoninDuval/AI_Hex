@@ -6,6 +6,7 @@ from mcts import Node, MCTS
 
 _TTTB = namedtuple("TicTacToeBoard", "grille current_player players winner done")
 
+
 class HexBoard(_TTTB, Node):
 
     def find_children(self):
@@ -21,7 +22,6 @@ class HexBoard(_TTTB, Node):
         all_moves = self.find_all_move()
         choice = random.choice(all_moves)
         return self.make_move(choice)
-
 
     def find_all_move(self):
         '''

@@ -4,7 +4,7 @@ import random
 from datetime import datetime
 
 from mcts import MCTS
-from hex_board import HexBoard
+from src.hex_board import HexBoard
 
 class Player(ABC):
     def __init__(self, type, number):
