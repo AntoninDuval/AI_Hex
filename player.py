@@ -1,6 +1,7 @@
 from abc import ABC
 import numpy as np
 import random
+from datetime import datetime
 
 from mcts import MCTS
 from hex_board import HexBoard
@@ -44,9 +45,13 @@ class MCTS_Player(Player):
         self.tree = MCTS()
 
     def move(self, board):
+        start_time = datetime.now()
         for _ in range(50):
             print(_)
             self.tree.do_rollout(board)
+            delta = datetime.now() - start_time
+            if delta.total_seconds() > 10:
+                break
         board = self.tree.choose(board)
         return board
 

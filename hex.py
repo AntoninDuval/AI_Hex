@@ -20,10 +20,10 @@ class Hexagone(gym.Env):
         #self.players = [Human(i) for i in range(1, 3)]
         if ai_difficulty == 'random':
             self.players = [Human(1), Random_AI(2)]
-        elif ai_difficulty is None:
-            self.players = [Human(1), Human(2)]
         elif ai_difficulty == 'MCTS':
             self.players = [Human(1), MCTS_Player(2)]
+        else:
+            self.players = [Human(1), Human(2)]
 
 
         self.current_player = self.players[0]
@@ -33,6 +33,7 @@ class Hexagone(gym.Env):
         self.action_space = spaces.Discrete(121)
         self.done = False
         self.reward = 0
+        self.size = size
 
         self.board = HexBoard(grille=np.zeros((size, size)), current_player=self.current_player, players=self.players, winner=None, done=self.done)
 
@@ -65,7 +66,9 @@ class Hexagone(gym.Env):
 
     def reset(self):
 
-        self.board = HexBoard(grille=np.zeros((11, 11)), current_player=self.board.current_player, players=self.players, winner=None, done=self.done)
+        self.board = HexBoard(grille=np.zeros((self.size, self.size)), current_player=self.players[0], players=self.players, winner=None, done=self.done)
+        self.current_player = self.board.current_player
+
         if self.gui:
             self.gui.restart_app()
 

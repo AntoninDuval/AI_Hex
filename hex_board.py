@@ -70,10 +70,9 @@ class HexBoard(_TTTB, Node):
         queue = set()
         came_from = dict()
 
-        if not grille.all() == 0:
-            return 'Tie'
+        last_col = grille.shape[0] - 1
 
-        for j in range(self.grille.shape[0]):
+        for j in range(grille.shape[0]):
             if self.current_player.number == 2:
                 if int(grille[0, j]) == self.current_player.number:
                     # If one of the start hexagone for player 2 was played by him, we add it to the queue
@@ -86,28 +85,76 @@ class HexBoard(_TTTB, Node):
 
         while queue:
                 current = queue.pop()
-                for next in self.find_neighbors(current):
+                for next in self.find_neighbors(current, grille):
                     if next not in came_from.values():
                         queue.add(next)
                         came_from[next] = current
 
-                    if (next[1] == 10 and self.current_player.number == 1) or \
-                            (next[0] == 10 and self.current_player.number == 2): # Si un chemin mène jusquà la dernière case
+                    if (next[1] == last_col and self.current_player.number == 1) or \
+                            (next[0] == last_col and self.current_player.number == 2):
+                        # Si un chemin mène jusquà la dernière case
                         print('Player {} win'.format(self.current_player.name))
                         return self.current_player.number
+
+        if not grille.all() == 0:
+            print('It\'s a Tie')
+            return 'Tie'
         return None
 
-    def find_neighbors(self, node):
+    def detect_tie(self, grille):
+        '''
+        Use Breadth first to find a path from one end to the other
+        :return:
+        '''
+        queue = set()
+        came_from = dict()
+
+        for j in range(self.grille.shape[0]):
+            if self.current_player.number == 1:
+                if int(grille[0, j]) == self.current_player.number:
+                    # If one of the start hexagone for player 1 was played by him, we add it to the queue
+                    queue.add((0, j))
+                    came_from[(0, j)] = None
+            else:
+                if int(grille[j, 0]) == self.current_player.number:
+                    queue.add((j, 0))
+                    came_from[(j, 0)] = None
+
+        while queue:
+            current = queue.pop()
+            for next in self.find_neighbors(current, grille):
+                if next not in came_from.values():
+                    queue.add(next)
+                    came_from[next] = current
+
+                if (next[1] == grille.shape[0] - 1 and self.current_player.number == 2) or \
+                        (next[0] == grille.shape[0] - 1 and
+                         self.current_player.number == 1):
+                    # Si un chemin mène jusquà la dernière case
+                    return True
+
+
+    def find_neighbors(self, node, grille):
         neighbors = []
         for i in range(-1, 2):
             for j in range(-1, 2): # We try every neighboring hexagones to see if they have been played
                 try:
-                    if self.grille[node[0]+i, node[1]+j] == self.current_player.number and not i == j == 0:
+                    if grille[node[0]+i, node[1]+j] == self.current_player.number \
+                            and not i == j == 0\
+                            and node[0]+i != -1\
+                            and node[1]+j != -1\
+                            and not i == j == -1\
+                            and not i == j == 1:
                         neighbors.append((node[0]+i, node[1]+j))
                         # Add it to the list of neighbors
                 except IndexError:
                     continue
         return neighbors
 
+
+
     def __hash__(self):
-        return hash((str(self.grille.tolist())))
+        return hash(str(self.grille)+str(self.current_player))
+
+    def __eq__(self, node2):
+        return (self.grille == node2.grille).all()

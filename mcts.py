@@ -46,12 +46,10 @@ class MCTS:
         path = []
         while True:
             path.append(node)
-            try:
-                if node not in self.children or not self.children[node]:
+            if node not in self.children or not self.children[node]:
                     # node is either unexplored or terminal
                     return path
-            except ValueError:
-                print('Error')
+
             unexplored = self.children[node] - self.children.keys()
             if unexplored:
                 n = unexplored.pop()
@@ -68,10 +66,7 @@ class MCTS:
     def _simulate(self, node):
         "Returns the reward for a random simulation (to completion) of `node`"
         invert_reward = True
-        step = 0
         while True:
-            step += 1
-            print(step)
             if node.is_terminal():
                 reward = node.reward()
                 return 1 - reward if invert_reward else reward
